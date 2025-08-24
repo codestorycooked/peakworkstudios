@@ -119,11 +119,6 @@ const Logo = styled.div`
   @media (max-width: 768px) {
     font-size: 24px;
   }
-
-  @media (max-width: 480px) { /* New: Smaller font for very small screens */
-    font-size: 20px;
-    letter-spacing: -0.5px;
-  }
 `;
 
 const LogoSVG = styled.svg`
@@ -141,12 +136,6 @@ const LogoSVG = styled.svg`
     width: 28px;
     height: 28px;
     margin-right: 8px;
-  }
-
-  @media (max-width: 480px) { /* New: Smaller SVG for very small screens */
-    width: 24px;
-    height: 24px;
-    margin-right: 6px;
   }
 `;
 
@@ -229,10 +218,6 @@ const HeaderCTAButton = styled(CallToActionButton)`
   @media (max-width: 768px) {
     padding: 8px 15px;
     font-size: 13px;
-  }
-
-  @media (max-width: 480px) { /* New: Hide CTA button on very small screens */
-    display: none;
   }
 `;
 
