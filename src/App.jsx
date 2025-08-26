@@ -118,6 +118,7 @@ const Logo = styled.div`
 
   @media (max-width: 768px) {
     font-size: 24px;
+    white-space: nowrap; /* Ensure text stays on one line */
   }
 `;
 
@@ -492,18 +493,49 @@ const Footer = styled.footer`
 // App Component
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(() => {
+    // 1. Check localStorage for user preference
     const savedTheme = localStorage.getItem('isDarkMode');
-    return savedTheme ? JSON.parse(savedTheme) : false; // Default to light mode
+    if (savedTheme !== null) {
+      return JSON.parse(savedTheme);
+    }
+
+    // 2. Check system preference
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      return true; // System prefers dark
+    }
+
+    // 3. Fallback to time of day (Dark from 6 PM to 6 AM)
+    const hour = new Date().getHours();
+    return hour >= 18 || hour < 6;
   });
 
+  // Effect to persist user's theme choice to localStorage
   useEffect(() => {
     localStorage.setItem('isDarkMode', JSON.stringify(isDarkMode));
   }, [isDarkMode]);
+
+  // Effect to listen for system preference changes
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+    const handleSystemThemeChange = (e) => {
+      // Only update based on system if there's no explicit user preference in localStorage.
+      // If localStorage has a value, it means the user has made a manual choice,
+      // and that choice should override system preference.
+      if (localStorage.getItem('isDarkMode') === null) {
+        setIsDarkMode(e.matches);
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleSystemThemeChange);
+    return () => mediaQuery.removeEventListener('change', handleSystemThemeChange);
+  }, []); // Empty dependency array, runs once on mount
 
   const currentTheme = isDarkMode ? darkTheme : lightTheme;
 
   const heroRef = useRef(null);
   const servicesRef = useRef(null);
+  const consultingRef = useRef(null);
   const aboutRef = useRef(null);
   const contactRef = useRef(null);
 
@@ -527,6 +559,7 @@ function App() {
           <DesktopNavLinks>
             <NavLink onClick={() => scrollToSection(heroRef)}>Home</NavLink>
             <NavLink onClick={() => scrollToSection(servicesRef)}>Services</NavLink>
+            <NavLink onClick={() => scrollToSection(consultingRef)}>Consulting</NavLink>
             <NavLink onClick={() => scrollToSection(aboutRef)}>About</NavLink>
             <NavLink onClick={() => scrollToSection(contactRef)}>Contact</NavLink>
           </DesktopNavLinks>
@@ -569,12 +602,20 @@ function App() {
           </FeaturesGrid>
         </Section>
 
-        <Section id="about" ref={aboutRef} bgColor={currentTheme.surface} delay="0.4s">
+        <Section id="consulting" ref={consultingRef} delay="0.4s">
+          <h2>Consulting & Automation Strategy</h2>
+          <p>Hands-on consulting to help you identify your AI automation opportunities, align them to business outcomes, and build a roadmap that pays off from day one.</p>
+          <ContactButtonContainer>
+            <CallToActionButton href="https://calendly.com/peakworkstudios/30min" target="_blank" rel="noopener noreferrer">Book a Strategy Call</CallToActionButton>
+          </ContactButtonContainer>
+        </Section>
+
+        <Section id="about" ref={aboutRef} bgColor={currentTheme.surface} delay="0.6s">
           <h2>About Peak Work Studios</h2>
           <p>With 20 years in software & cloud, we bring real-world expertise to AI-powered business solutions. At Peak Work Studios, we are dedicated to crafting bespoke AI automation strategies that drive tangible results. Our approach is rooted in understanding your unique challenges and delivering solutions that are not just innovative, but also practical and scalable.</p>
         </Section>
 
-        <Section id="contact" ref={contactRef} delay="0.6s">
+        <Section id="contact" ref={contactRef} delay="0.8s">
           <h2>Ready to Explore Your Automation Opportunities?</h2>
           <p>Let's connect to discuss how custom AI workflows can transform your business operations and accelerate your growth.</p>
           <ContactButtonContainer>
